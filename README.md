@@ -1,4 +1,4 @@
-# StayEase - Hostel & PG Management SaaS
+# StayEase - Hostel & PG Management 
 
 StayEase is a full-stack MERN-based Hostel and PG Management System designed to help hostel owners, PG managers, staff members, and students manage day-to-day operations from a single dashboard.
 
