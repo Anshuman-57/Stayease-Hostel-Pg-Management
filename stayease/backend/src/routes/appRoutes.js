@@ -1,0 +1,35 @@
+import express from 'express';
+import { protect, allow } from '../middleware/auth.js';
+import { dashboard } from '../controllers/dashboardController.js';
+import * as c from '../controllers/resourceControllers.js';
+const r=express.Router();
+r.use(protect);
+r.get('/dashboard', dashboard);
+r.route('/rooms').get(allow('admin','staff'),c.listRooms).post(allow('admin'),c.createRoom);
+r.route('/rooms/:id').put(allow('admin'),c.updateRoom).delete(allow('admin'),c.deleteRoom);
+r.route('/students').get(allow('admin','staff'),c.listStudents).post(allow('admin'),c.createStudent);
+r.get('/students/me', allow('student'), c.myProfile);
+r.route('/students/:id').put(allow('admin','staff'),c.updateStudent).delete(allow('admin'),c.deactivateStudent);
+r.post('/students/:id/assign-room', allow('admin'), c.assignRoom);
+r.route('/fees').get(c.listFees);
+r.post('/fees/generate', allow('admin'), c.generateFees);
+r.get('/fees/export/csv', allow('admin','staff'), c.exportFeesCsv);
+r.put('/fees/:id/pay', allow('admin','staff'), c.markFeePaid);
+r.get('/fees/:id/receipt', c.feeReceipt);
+r.route('/complaints').get(c.listComplaints).post(c.createComplaint);
+r.put('/complaints/:id', allow('admin','staff'), c.updateComplaint);
+r.post('/complaints/:id/comment', c.addComplaintComment);
+r.route('/attendance').get(c.listAttendance).post(allow('admin','staff'),c.markAttendance);
+r.put('/attendance/:id/checkout', allow('admin','staff'), c.checkoutAttendance);
+r.get('/attendance/qr', allow('admin','staff'), c.qrAttendance);
+r.route('/visitors').get(c.listVisitors).post(allow('admin','staff'),c.createVisitor);
+r.put('/visitors/:id/checkout', allow('admin','staff'), c.checkoutVisitor);
+r.route('/notices').get(c.listNotices).post(allow('admin','staff'),c.createNotice);
+r.delete('/notices/:id', allow('admin'), c.deleteNotice);
+r.get('/leases', c.listLeases); r.post('/leases', allow('admin'), c.crudCreate(c.models.Lease,'Lease')); r.put('/leases/:id', allow('admin'), c.crudUpdate(c.models.Lease,'Lease')); r.delete('/leases/:id', allow('admin'), c.crudDelete(c.models.Lease,'Lease'));
+for (const [path,Model,entity,roles] of [['inventory',c.models.Inventory,'Inventory',['admin','staff']],['maintenance',c.models.Maintenance,'Maintenance',['admin','staff']],['expenses',c.models.Expense,'Expense',['admin']]]){
+ r.get(`/${path}`, allow(...roles), c.crudList(Model)); r.post(`/${path}`, allow(...roles), c.crudCreate(Model,entity)); r.put(`/${path}/:id`, allow(...roles), c.crudUpdate(Model,entity)); r.delete(`/${path}/:id`, allow('admin'), c.crudDelete(Model,entity));
+}
+r.get('/notifications', c.listNotifications); r.put('/notifications/:id/read', c.markNotificationRead);
+r.get('/audit-logs', allow('admin'), c.auditLogs);
+export default r;
