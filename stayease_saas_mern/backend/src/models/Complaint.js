@@ -1,3 +1,0 @@
-import mongoose from 'mongoose';
-const schema = new mongoose.Schema({ student:{type:mongoose.Schema.Types.ObjectId,ref:'Student'}, title:String, category:{type:String,default:'general'}, description:String, priority:{type:String,enum:['low','medium','high','urgent'],default:'medium'}, status:{type:String,enum:['open','assigned','in_progress','resolved','closed'],default:'open'}, assignedTo:{type:mongoose.Schema.Types.ObjectId,ref:'User'}, resolution:String, resolvedAt:Date, comments:[{user:{type:mongoose.Schema.Types.ObjectId,ref:'User'},message:String,createdAt:{type:Date,default:Date.now}}] },{timestamps:true});
-export default mongoose.model('Complaint', schema);
